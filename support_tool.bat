@@ -63,7 +63,7 @@ echo -----------------------------------------------------------
 echo 9) Zurueck zum Menu 
 SET /p "sysinfo=Bitte waehlen Sie eine der Moeglichkeiten aus:"
 
-if %systeminfo% == 9 (
+if %sysinfo% == 9 (
     goto :start 
 ) else (
 echo Da hat etwas nicht geklappt bitte versuchen Sie es erneut ... 
@@ -165,15 +165,11 @@ REM #############
 
 :8 
 cls
-md C:\fuerte-temp
 echo ------------------------------------------------------------------------------------------------------------------------
 echo ------------------------------------------------------------------------------------------------------------------------
-echo Die Informationen werden gesammelt ... Bitte warte einen Moment
-powershell.exe -EncodedCommand DQAKACAAIAAgACAARwBlAHQALQBTAGUAcgB2AGkAYwBlACAAfAAgAEYAbwByAEUAYQBjAGgALQBPAGIAagBlAGMAdAAgAHsADQAKACAAIAAgACAAaQBmACAAKAANAAoAIAAgACAAIAAgACAAIAAgACQAXwAuAFMAdABhAHQAdQBzACAALQBlAHEAIAAiAFIAdQBuAG4AaQBuAGcAIgANAAoAIAAgACAAIAAgACAAIAAgACkADQAKACAAIAAgACAAewAgAA0ACgAgACAAIAAgACQAXwAuAE4AYQBtAGUAfAAgAE8AdQB0AC0ARgBpAGwAZQAgAC0AZgBpAGwAZQBwAGEAdABoACAAIgBDADoAXABmAHUAZQByAHQAZQAtAHQAZQBtAHAAXAByAHUAbgBuAGkAbgBnAC4AdAB4AHQAIgAgAC0ARQBuAGMAbwBkAGkAbgBnACAAQQBTAEMASQBJACAALQBhAHAAcABlAG4AZAAgAA0ACgAgACAAIAAgAH0ADQAKACAAIAAgACAAfQANAAoA 
-powershell.exe -EncodedCommand DQAKACAAIAAgACAARwBlAHQALQBTAGUAcgB2AGkAYwBlACAAfAAgAEYAbwByAEUAYQBjAGgALQBPAGIAagBlAGMAdAAgAHsADQAKACAAIAAgACAAaQBmACAAKAANAAoAIAAgACAAIAAgACAAIAAgACQAXwAuAFMAdABhAHQAdQBzACAALQBlAHEAIAAiAFMAdABvAHAAcABlAGQAIgANAAoAIAAgACAAIAAgACAAIAAgACkADQAKACAAIAAgACAAewAgAA0ACgAgACAAIAAgACQAXwAuAE4AYQBtAGUAfAAgAE8AdQB0AC0ARgBpAGwAZQAgAC0AZgBpAGwAZQBwAGEAdABoACAAIgBDADoAXABmAHUAZQByAHQAZQAtAHQAZQBtAHAAXABzAHQAbwBwAHAAZQBkAC4AdAB4AHQAIgAgAC0ARQBuAGMAbwBkAGkAbgBnACAAQQBTAEMASQBJACAALQBhAHAAcABlAG4AZAAgAA0ACgAgACAAIAAgAH0ADQAKACAAIAAgACAAfQANAAoA
-echo Welche Services moechten Sie angezeigt bekommen?
 echo 1) Show Running Services 
 echo 2) Show Stopped Services
+echo 3) Show All Services
 
 :eingabe
 SET /p "service_eingabe=Bitte waehlen Sie eine der Moeglichkeiten aus:"
@@ -186,60 +182,111 @@ if %service_eingabe% == 2 (
     goto stopped
 )
 
+if %service_eingabe% == 3 (
+    goto all 
+) else (
+    echo Da ist etwas schief gelaufen ... Bitte versuchen Sie es erneut.
+    timeout 4 
+    goto eingabe
+    )
+
 :running
 cls
 mode con:cols=150 lines=200
 color 0a
-type C:\fuerte-temp\Running.txt
+powershell Get-Service | findstr "Running"
+:running_end
 echo ------------------------------------------------------------------------------------------------------------------------
 echo ------------------------------------------------------------------------------------------------------------------------
 echo 1) Show Stopped Services 
-echo 2) Hauptmenu
+echo 2) Show All Services
+echo 9) Hauptmenu
 echo ------------------------------------------------------------------------------------------------------------------------
 echo ------------------------------------------------------------------------------------------------------------------------
 SET /p "service_running=Bitte waehlen Sie eine der Moeglichkeiten aus:"
 if %service_running% == 1 (
+    color 0f
     goto stopped
 )
 if %service_running% == 2 (
-    goto endservice
+    color 0f
+    goto all 
+) 
+
+if %service_running% == 9 (
+color 0f
+goto start
 ) else (
 echo da ist etwas schief gelaufen, bitte versuchen Sie es erneut.
-goto running 
+goto running_end 
 ) 
 
 :stopped
 cls
 mode con:cols=150 lines=200
 color 04
-type C:\fuerte-temp\Stopped.txt
+powershell Get-Service | findstr "Stopped"
+:stopped_end
 echo ------------------------------------------------------------------------------------------------------------------------
 echo ------------------------------------------------------------------------------------------------------------------------
 echo 1) Show Running Services 
-echo 2) Hauptmenu
+echo 2) Show All Services 
+echo 9) Hauptmenu
 echo ------------------------------------------------------------------------------------------------------------------------
 echo ------------------------------------------------------------------------------------------------------------------------
 SET /p "service_stopped=Bitte waehlen Sie eine der Moeglichkeiten aus:"
 if %service_stopped% == 1 (
+    color 0f
     goto running
 )
 if %service_stopped% == 2 (
-    goto endservice
+    color 0f
+    goto all
+) 
+if %service_stopped% == 9 (
+color 0f
+goto start 
 ) else (
 echo da ist etwas schief gelaufen, bitte versuchen Sie es erneut.
-goto stopped 
+goto stopped_end
 ) 
 
+:all 
+cls 
+mode con:cols=150 lines=200
+color 09 
+powershell Get-Service
+:all_end
+echo ------------------------------------------------------------------------------------------------------------------------
+echo ------------------------------------------------------------------------------------------------------------------------
+echo 1) Show Running Services 
+echo 2) Show Stopped Services 
+echo 9) Hauptmenu
+echo ------------------------------------------------------------------------------------------------------------------------
+echo ------------------------------------------------------------------------------------------------------------------------
+SET /p "service_all=Bitte waehlen Sie eine der Moeglichkeiten aus:"
+if %service_all% == 1 (
+    color 0f
+    goto running
+)
+if %service_all% == 2 (
+    color 0f
+    goto stopped
+)
+if %service_all% == 9 (
+    color 0f
+    goto start
+) else (
+    echo da ist etwas schief gelaufen, bitte versuchen Sie es erneut.
+    goto all_end 
+)
 
-:endservice
-color 0f
-del C:\fuerte-temp\*.txt
-rd C:\fuerte-temp\
-goto start
 
 :9
 cls
 mode con:cols=170 lines=70
+echo ------------------------------------------------------------------------------------------------------------------------
+echo ------------------------------------------------------------------------------------------------------------------------
 echo Vielen Dank fuer das Verwenden des Tools :) 
 echo Schoenen Tag! 
 echo MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
